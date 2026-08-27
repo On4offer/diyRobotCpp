@@ -1,0 +1,48 @@
+name: C++ CI
+on:
+  push:
+  pull_request:
+
+jobs:
+  format:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update && sudo apt-get install --yes clang-format
+      - name: Check C++ formatting
+        run: >-
+          find include src apps tests ros2_ws/src -type f
+          \( -name '*.cpp' -o -name '*.hpp' -o -name '*.h' \)
+          -print0 | xargs -0 clang-format --dry-run --Werror
+
+  linux:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - run: >-
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+          -DDIYROBOT_BUILD_QT=OFF -DDIYROBOT_BUILD_OPENCV=OFF
+          -DDIYROBOT_WARNINGS_AS_ERRORS=ON
+      - run: cmake --build build --parallel
+      - run: ctest --test-dir build --output-on-failure
+  windows:
+    runs-on: windows-2025
+    steps:
+      - uses: actions/checkout@v4
+      - run: >-
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+          -DDIYROBOT_BUILD_QT=OFF -DDIYROBOT_BUILD_OPENCV=OFF
+          -DDIYROBOT_WARNINGS_AS_ERRORS=ON
+      - run: cmake --build build --config Release --parallel
+      - run: ctest --test-dir build -C Release --output-on-failure
+
+  sanitizers:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - run: >-
+          cmake -S . -B build-sanitized -DCMAKE_BUILD_TYPE=Debug
+          -DDIYROBOT_BUILD_QT=OFF -DDIYROBOT_BUILD_OPENCV=OFF
+          -DDIYROBOT_WARNINGS_AS_ERRORS=ON -DDIYROBOT_ENABLE_SANITIZERS=ON
+      - run: cmake --build build-sanitized --parallel
+      - run: ctest --test-dir build-sanitized --output-on-failure

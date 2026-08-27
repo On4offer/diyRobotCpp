@@ -1,0 +1,25 @@
+cmake_minimum_required(VERSION 3.20)
+project(diyrobot_ros LANGUAGES CXX)
+
+find_package(ament_cmake REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(sensor_msgs REQUIRED)
+find_package(std_msgs REQUIRED)
+find_package(std_srvs REQUIRED)
+
+set(DIYROBOT_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(DIYROBOT_BUILD_APPS OFF CACHE BOOL "" FORCE)
+set(DIYROBOT_BUILD_QT OFF CACHE BOOL "" FORCE)
+set(DIYROBOT_BUILD_OPENCV OFF CACHE BOOL "" FORCE)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../../.. ${CMAKE_CURRENT_BINARY_DIR}/diyrobot_core)
+
+add_executable(grasp_node src/grasp_node.cpp)
+target_compile_features(grasp_node PRIVATE cxx_std_17)
+target_link_libraries(grasp_node diyrobot)
+ament_target_dependencies(grasp_node rclcpp geometry_msgs sensor_msgs std_msgs std_srvs)
+diyrobot_set_project_options(grasp_node)
+
+install(TARGETS grasp_node DESTINATION lib/${PROJECT_NAME})
+install(DIRECTORY launch urdf config DESTINATION share/${PROJECT_NAME})
+ament_package()

@@ -1,0 +1,19 @@
+serial:
+  leader_port: COM22
+  follower_port: COM24
+  baudrate: 1000000
+  timeout_ms: 100
+servos:
+  ids: [1, 2, 3, 4, 5, 6]
+motion:
+  fps: 30
+  max_step_counts: 25
+  velocity_counts_per_s: 200
+  acceleration_counts_per_s2: 400
+kinematics:
+  shoulder_xyz_m: [0.0388, 0.0, 0.0624]
+  link_lengths_m: [0.1776, 0.1350, 0.0980]
+safety:
+  hardware_run_requires_flag: true
+  sequential_ping_only: true
+  ros_dry_run: true
